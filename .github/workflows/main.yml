@@ -48,6 +48,12 @@ jobs:
           name: dist
           path: ${{ github.workspace }}/downloaded_artifacts
 
+      - name: Install EB CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3-pip python3-dev build-essential -y
+          sudo pip3 install awsebcli --upgrade
+
       - name: Deploy to Elastic Beanstalk
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
