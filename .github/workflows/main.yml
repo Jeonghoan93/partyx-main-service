@@ -1,0 +1,37 @@
+name: Deploy to AWS Elastic Beanstalk
+
+on:
+  push:
+    branches:
+      - master 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build
+      run: npm run build
+
+    - name: Deploy to Elastic Beanstalk
+      uses: einaregilsson/beanstalk-deploy@v18
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        region: 'eu-north-1' # Update with your region
+        application_name: 'your-app-name'
+        environment_name: 'your-environment-name'
+        version_label: ${{ github.run_id }}
+        zip_file: './path-to-zip-file' # Path to the zip file you want to deploy. Can be a build artifact
+      ```
+
+- Update the placeholders (like `'your-app-name'` and `'your-environment-name'`) with your actual Elastic Beanstalk configuration values.
+
+- In your GitHub repository, navigate to `Settings` -> `Secrets` and add two new secrets: `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. These should contain the access key ID and secret access key for your `partyx-backend` IAM user.
+

@@ -1,0 +1,10 @@
+deploy_backend:
+  image: node:latest
+  script:
+    - cd backend-directory
+    - npm install
+    - zip -r package.zip ./*
+    - aws elasticbeanstalk create-application-version --application-name your-app-name --version-label `git rev-parse --short HEAD` --source-bundle S3Bucket="your-s3-bucket-for-elasticbeanstalk",S3Key=package.zip
+    - aws elasticbeanstalk update-environment --application-name your-app-name --environment-name your-environment-name --version-label `git rev-parse --short HEAD`
+  only:
+    - main
