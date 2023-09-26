@@ -14,7 +14,7 @@ export class FavoritesService {
 
   async addToFavorites(
     req: Request,
-    { params }: { params: { listingId: Types.ObjectId } },
+    { params }: { params: { eventId: Types.ObjectId } },
   ): Promise<User> {
     const currentUser = await this.authService.getCurrentUser(req);
 
@@ -22,15 +22,15 @@ export class FavoritesService {
       throw new Error('User not found');
     }
 
-    const { listingId } = params;
+    const { eventId } = params;
 
-    if (!listingId) {
-      throw new Error('Invalid listing ID');
+    if (!eventId) {
+      throw new Error('Invalid event ID');
     }
 
     const favoriteIds = [...(currentUser.result.user.favoriteIds || [])];
 
-    favoriteIds.push(listingId);
+    favoriteIds.push(eventId);
 
     const user = await this.userRepo.updateOneById(
       currentUser.result.user._id,
@@ -44,7 +44,7 @@ export class FavoritesService {
 
   async deleteFromFavorites(
     req: Request,
-    { params }: { params: { listingId: Types.ObjectId } },
+    { params }: { params: { eventId: Types.ObjectId } },
   ): Promise<User> {
     const currentUser = await this.authService.getCurrentUser(req);
 
@@ -52,15 +52,15 @@ export class FavoritesService {
       throw new Error('User not found');
     }
 
-    const { listingId } = params;
+    const { eventId } = params;
 
-    if (!listingId) {
-      throw new Error('Invalid listing ID');
+    if (!eventId) {
+      throw new Error('Invalid event ID');
     }
 
     let favoriteIds = [...(currentUser.result.user.favoriteIds || [])];
 
-    favoriteIds = favoriteIds.filter((id) => id !== listingId);
+    favoriteIds = favoriteIds.filter((id) => id !== eventId);
 
     const user = await this.userRepo.updateOneById(
       currentUser.result.user._id,

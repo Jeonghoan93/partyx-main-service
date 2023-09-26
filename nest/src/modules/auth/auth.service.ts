@@ -4,7 +4,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { OAuth2Client } from 'google-auth-library';
@@ -19,7 +18,6 @@ import { RegisterUserDto } from './dto/register-user.dto';
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-    private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -113,7 +111,7 @@ export class AuthService {
   }): Promise<{
     status: string;
     message: string;
-    result: { user: SafeUser; token: string };
+    result: { user: User; token: string };
   }> {
     try {
       const user = await this.userService.getUserByEmail(credentials.email);
@@ -133,13 +131,7 @@ export class AuthService {
         message: 'User logged in successfully',
         result: {
           token: token,
-          user: {
-            ...user.toObject(),
-            name: user.name,
-            email: user.email,
-            createdAt: user.createdAt.toISOString(),
-            updatedAt: user.updatedAt.toISOString(),
-          },
+          user: user,
         },
       };
     } catch (err) {

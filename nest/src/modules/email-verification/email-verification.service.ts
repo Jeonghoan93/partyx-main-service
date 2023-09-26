@@ -59,12 +59,13 @@ export class EmailVerificationService {
       if (!user) {
         throw new Error('User not found');
       }
-      if (user.otp !== otp) {
+      if (user.verfication.otp !== otp) {
         throw new Error('Invalid otp');
       }
-      if (user.otpExpiryTime < new Date()) {
+      if (user.verfication.otpExpiryTime < new Date()) {
         throw new Error('Otp expired');
       }
+
       await this.userDB.updateOneByEmail(email, {
         isEmailVerified: true,
       });
@@ -93,8 +94,10 @@ export class EmailVerificationService {
       otpExpiryTime.setMinutes(otpExpiryTime.getMinutes() + 10);
 
       await this.userDB.updateOneByEmail(email, {
-        otp,
-        otpExpiryTime,
+        verfication: {
+          otp,
+          otpExpiryTime,
+        },
       });
 
       sendEmail(

@@ -1,127 +1,86 @@
 import {
-  Body,
+  BadRequestException,
   Controller,
   Delete,
   Get,
-  HttpCode,
+  NotFoundException,
   Param,
-  Patch,
   Post,
-  Put,
   Query,
+  Req,
 } from '@nestjs/common';
-import { Roles } from 'src/common/middleware/role.decorators';
-import { userTypes } from 'src/common/types';
-import { CreateEventDto } from './dto/create-event.dto';
-import { EventSkuDto, EventSkuDtoArr } from './dto/event-sku.dto';
-import { GetEventQueryDto } from './dto/get-event-query-dto';
-import { EventService } from './event.service';
+import { Request } from 'express';
+import { Types } from 'mongoose';
+import { Event } from 'src/common/schemas/event.schema';
+import { SafeEvent } from 'src/common/types';
+import { EventService, IEventsParams } from './event.service';
 
 @Controller('api/event')
 export class EventController {
   constructor(private readonly service: EventService) {}
-
   @Post()
-  @HttpCode(201)
-  @Roles(userTypes.ADMIN)
-  async create(@Body() dto: CreateEventDto) {
-    return await this.service.createEvent(dto);
+  async createEvent(@Req() req: Request): Promise<Event> {
+    try {
+      return await this.service.createEvent(req);
+    } catch (err) {
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  @Get(':eventId')
+  async getEventById(@Param('eventId') eventId: string): Promise<SafeEvent> {
+    try {
+      const event = await this.service.getEventById({ eventId });
+      if (!event) throw new NotFoundException('Event not found');
+      return event;
+    } catch (err) {
+      throw new NotFoundException(err.message);
+    }
   }
 
   @Get()
-  findAll(@Query() query: GetEventQueryDto) {
-    return this.service.findAllEvents(query);
+  async getEvents(@Query() query: IEventsParams): Promise<SafeEvent[]> {
+    try {
+      return await this.service.getEvents(query);
+    } catch (err) {
+      throw new NotFoundException(err.message);
+    }
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.service.findOneEvent(id);
+  @Get('favorites')
+  async getFavoriteEvents(@Req() req: Request): Promise<SafeEvent[]> {
+    try {
+      return await this.service.getFavoriteEvents(req);
+    } catch (err) {
+      throw new NotFoundException(err.message);
+    }
   }
 
-  @Patch(':id')
-  @Roles(userTypes.ADMIN)
-  async update(
-    @Param('id') id: string,
-    @Body() updateEventDto: CreateEventDto,
-  ) {
-    return await this.service.updateEvent(id, updateEventDto);
+  @Delete('favorites/:eventId')
+  async deleteFavoriteEvent(
+    @Req() req: Request,
+    @Param('eventId') eventId: Types.ObjectId,
+  ): Promise<Event> {
+    try {
+      return await this.service.deleteFavoriteEvent(req, {
+        params: { eventId },
+      });
+    } catch (err) {
+      throw new BadRequestException(err.message);
+    }
   }
 
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return await this.service.removeEvent(id);
-  }
-
-  @Post('/:eventId/skus')
-  @Roles(userTypes.ADMIN)
-  async updateEventSku(
-    @Param('eventId') eventId: string,
-    @Body() updateEventSkuDto: EventSkuDtoArr,
-  ) {
-    return await this.service.updateEventSku(eventId, updateEventSkuDto);
-  }
-
-  @Put('/:eventId/skus/:skuId')
-  @Roles(userTypes.ADMIN)
-  async updateEventSkuById(
-    @Param('eventId') eventId: string,
-    @Param('skuId') skuId: string,
-    @Body() updateEventSkuDto: EventSkuDto,
-  ) {
-    return await this.service.updateEventSkuById(
-      eventId,
-      skuId,
-      updateEventSkuDto,
-    );
-  }
-
-  @Delete('/:eventId/skus/:skuId')
-  @Roles(userTypes.ADMIN)
-  async deleteSkuById(
-    @Param('eventId') eventId: string,
-    @Param('skuId') skuId: string,
-  ) {
-    return await this.service.deleteEventSkuById(eventId, skuId);
-  }
-
-  @Post('/:eventId/skus/:skuId/licenses')
-  @Roles(userTypes.ADMIN)
-  async addEventSkuLicense(
-    @Param('eventId') eventId: string,
-    @Param('skuId') skuId: string,
-    @Body('licenseKey') licenseKey: string,
-  ) {
-    return await this.service.addEventSkuLicense(eventId, skuId, licenseKey);
-  }
-
-  @Delete('/licenses/:licenseKeyId')
-  @Roles(userTypes.ADMIN)
-  async removeEventSkuLicense(@Param('licenseKeyId') licenseId: string) {
-    return await this.service.removeEventSkuLicense(licenseId);
-  }
-
-  @Get('/:eventId/skus/:skuId/licenses')
-  @Roles(userTypes.ADMIN)
-  async getEventSkuLicenses(
-    @Param('eventId') eventId: string,
-    @Param('skuId') skuId: string,
-  ) {
-    return await this.service.getEventSkuLicenses(eventId, skuId);
-  }
-
-  @Put('/:eventId/skus/:skuId/licenses/:licenseKeyId')
-  @Roles(userTypes.ADMIN)
-  async updateEventSkuLicense(
-    @Param('eventId') eventId: string,
-    @Param('skuId') skuId: string,
-    @Param('licenseKeyId') licenseKeyId: string,
-    @Body('licenseKey') licenseKey: string,
-  ) {
-    return await this.service.updateEventSkuLicense(
-      eventId,
-      skuId,
-      licenseKeyId,
-      licenseKey,
-    );
+  @Delete(':eventId')
+  async deleteEvent(
+    @Req() req: Request,
+    @Param('eventId') eventId: Types.ObjectId,
+  ): Promise<Event> {
+    try {
+      return await this.service.deleteEvent(req, {
+        params: { eventId },
+      });
+    } catch (err) {
+      throw new BadRequestException(err.message);
+    }
   }
 }

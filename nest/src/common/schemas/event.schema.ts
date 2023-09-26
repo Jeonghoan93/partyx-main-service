@@ -1,134 +1,116 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Types } from 'mongoose';
+import { Document, Types } from 'mongoose';
+import { Booking } from './booking.schema';
+import { Review, ReviewSchema } from './review.schema';
+import { User } from './user.schema';
 
-export enum eventType {
-  festival = 'Festival',
-  clubEvent = 'Club Event',
-  rave = 'Rave',
-  houseParty = 'House Party',
-  concert = 'Concert',
+@Schema()
+export class Address {
+  @Prop()
+  street: string;
+
+  @Prop()
+  city: string;
+
+  @Prop()
+  state: string;
+
+  @Prop()
+  postalCode: string;
+
+  @Prop()
+  country: string;
 }
 
-export enum baseType {
-  business = 'Business',
-  individual = 'Individual',
+export const AddressSchema = SchemaFactory.createForClass(Address);
+
+@Schema()
+export class Location {
+  @Prop({ type: [Number] })
+  latlng: [number, number];
 }
 
-@Schema({ timestamps: true })
-export class Feedback extends mongoose.Document {
-  @Prop({})
-  customerId: string;
+export const LocationSchema = SchemaFactory.createForClass(Location);
 
-  @Prop({})
-  customerName: string;
+@Schema()
+export class Event extends Document {
+  @Prop()
+  eventId: number;
 
-  @Prop({})
-  rating: number;
+  @Prop()
+  img: string;
 
-  @Prop({})
-  feedbackMsg: string;
-}
-
-export const FeedbackSchema = SchemaFactory.createForClass(Feedback);
-
-@Schema({ timestamps: true })
-export class SkuDetails extends mongoose.Document {
-  @Prop({})
-  skuName: string;
-
-  @Prop({})
-  price: number;
-
-  @Prop({})
-  validity: number; // in days
-
-  @Prop({})
-  lifetime: boolean;
-
-  @Prop({})
-  stripePriceId: string;
-
-  @Prop({})
-  skuCode?: string;
-}
-
-export const skuDetailsSchema = SchemaFactory.createForClass(SkuDetails);
-
-@Schema({ timestamps: true })
-export class Event {
-  @Prop({ required: true })
-  eventName: string;
-
-  @Prop({ required: true })
-  description: string;
-
-  @Prop({ required: true })
-  date: Date;
-
-  @Prop({ required: true })
-  price: number;
-
-  @Prop({ required: true })
-  location: string;
-
-  @Prop({ type: Types.ObjectId, ref: 'User' })
-  organizer: Types.ObjectId;
-
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }] })
-  attendees: Types.ObjectId[];
-
-  @Prop({ required: true })
-  maxAttendees: number;
-
-  @Prop({ required: true })
-  coverImage: string;
-
-  @Prop({
-    default: '',
-  })
-  image?: string;
-
-  @Prop({
-    required: true,
-    enum: [
-      eventType.rave,
-      eventType.clubEvent,
-      eventType.festival,
-      eventType.houseParty,
-      eventType.concert,
-    ],
-  })
-  type: string;
-
-  @Prop({ required: true, enum: [baseType.individual, baseType.business] })
-  baseType: string;
-
-  @Prop({ required: true })
-  eventUrl: string;
-
-  @Prop({ required: true })
-  downloadUrl: string;
-
-  @Prop({})
+  @Prop()
   avgRating: number;
 
-  @Prop([{ type: FeedbackSchema }])
-  feedbackDetails: Feedback[];
+  @Prop()
+  reviewCounts: number;
 
-  @Prop([{ type: skuDetailsSchema }])
-  skuDetails: SkuDetails[];
+  @Prop({ type: AddressSchema })
+  address: Address;
 
-  @Prop({ type: Object })
-  imageDetails: Record<string, any>;
+  @Prop({ type: LocationSchema })
+  location?: Location;
 
-  @Prop({})
-  requirementSpecification: Record<string, any>[];
+  @Prop()
+  title: string;
 
-  @Prop({})
-  highlights: string[];
+  @Prop()
+  minGuests: number;
 
-  @Prop({})
-  stripeEventId: string;
+  @Prop()
+  maxGuests: number;
+
+  @Prop()
+  desc: string;
+
+  @Prop([String])
+  offers: string[];
+
+  @Prop()
+  startDate: Date;
+
+  @Prop()
+  endDate: Date;
+
+  @Prop()
+  eventType: string;
+
+  @Prop()
+  currency: string;
+
+  @Prop()
+  price: number;
+
+  @Prop()
+  hostName: string;
+
+  @Prop()
+  hostProfilePhoto: string;
+
+  @Prop()
+  cancellationPolicy: string;
+
+  @Prop([String])
+  eventRules: string[];
+
+  @Prop([String])
+  safety: string[];
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
+
+  @Prop([ReviewSchema])
+  reviews: Review[];
+
+  @Prop([{ type: Types.ObjectId, ref: 'Booking' }])
+  bookings?: Booking[];
+
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  user?: User;
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);

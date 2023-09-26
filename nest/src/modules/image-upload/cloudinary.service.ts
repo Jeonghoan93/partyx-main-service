@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v2 as cloudinary } from 'cloudinary';
-import { unlinkSync } from 'fs';
 import { EventRepository } from 'src/common/repos/event.repo';
-import { GenericResponseDto } from 'src/common/types';
 import { StripeService } from '../payment/stripe.service';
 
 type UploadResponse = {
@@ -26,35 +24,29 @@ export class CloudinaryService {
     });
   }
 
-  async uploadEventImage(id: string, file: any): Promise<GenericResponseDto> {
+  async uploadEventImage(eventId: string, file: any): Promise<any> {
     try {
-      const event = await this.eventDB.findOne({ _id: id });
+      const event = await this.eventDB.findOne({ _id: eventId });
+
       if (!event) {
         throw new Error('Event does not exist');
       }
-      if (event.imageDetails?.public_id) {
-        await this.deleteImage(event.imageDetails.public_id);
+      if (event.img) {
+        await this.deleteImage(event.img);
       }
 
-      const resOfCloudinary = await this.uploadFromFilepath(file.path);
-      unlinkSync(file.path);
-      await this.eventDB.findOneAndUpdate(
-        { _id: id },
-        {
-          imageDetails: resOfCloudinary,
-          image: resOfCloudinary.secure_url,
-        },
-      );
+      // const resOfCloudinary = await this.uploadFromFilepath(file.path);
+      // unlinkSync(file.path);
+      // await this.eventDB.updateOneById(event.eventId, {
+      //   img: resOfCloudinary,
+      //   image: resOfCloudinary.secure_url,
+      // });
 
-      await this.stripeService.updateStripeProductById(event.stripeEventId, {
-        images: [resOfCloudinary.secure_url],
-      });
+      // await this.stripeService.updateStripeProductById(event.eventId, {
+      //   images: [resOfCloudinary.secure_url],
+      // });
 
-      return new GenericResponseDto(
-        'Image uploaded successfully',
-        'success',
-        resOfCloudinary.secure_url,
-      );
+      return 'TODO';
     } catch (error) {
       throw error;
     }

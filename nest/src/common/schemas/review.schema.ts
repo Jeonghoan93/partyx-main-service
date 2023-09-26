@@ -1,19 +1,23 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
+import { User } from './user.schema';
 
-@Schema({ timestamps: true })
-export class Review extends Document {
-  @Prop({ type: Types.ObjectId, ref: 'User' })
-  userId: Types.ObjectId;
-
-  @Prop({ type: Types.ObjectId, ref: 'Event', required: false, default: null })
-  eventId?: Types.ObjectId | null;
-
-  @Prop({ required: true, min: 1, max: 5 })
+@Schema()
+export class Review {
+  @Prop()
   rating: number;
 
-  @Prop({ required: true })
-  text: string;
+  @Prop()
+  reviewId: number;
+
+  @Prop()
+  reviewDesc: string;
+
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  user: User;
+
+  @Prop()
+  reviewDate: Date;
 }
 
 export const ReviewSchema = SchemaFactory.createForClass(Review);

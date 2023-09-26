@@ -1,20 +1,20 @@
-import { Listing } from '../schemas/listing.schema';
-import { Reservation } from '../schemas/reservation.schema';
+import { Booking } from '../schemas/booking.schema';
+import { Event } from '../schemas/event.schema';
 import { User } from '../schemas/user.schema';
 
-export type SafeListing = Omit<Listing, 'createdAt' | 'user'> & {
+export type SafeEvent = Omit<Event, 'createdAt' | 'user'> & {
   createdAt: string;
   user: SafeUser;
 };
 
-export type SafeReservation = Omit<
-  Reservation,
-  'createdAt' | 'startDate' | 'endDate' | 'listing'
+export type SafeBooking = Omit<
+  Booking,
+  'createdAt' | 'startDate' | 'endDate' | 'event'
 > & {
   createdAt: string;
   startDate: string;
   endDate: string;
-  listing: SafeListing;
+  event: SafeEvent;
 };
 
 export type SafeUser = Omit<

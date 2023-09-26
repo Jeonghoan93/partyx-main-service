@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectStripe } from 'nestjs-stripe';
 import Stripe from 'stripe';
 
@@ -11,6 +11,21 @@ export interface UpdateStripeProductDto {
 @Injectable()
 export class StripeService {
   constructor(@InjectStripe() private readonly stripeClient: Stripe) {}
+
+  async createSession(sessionParams: Stripe.Checkout.SessionCreateParams) {
+    try {
+      const session = await this.stripeClient.checkout.sessions.create(
+        sessionParams,
+      );
+
+      return session;
+    } catch (err) {
+      throw new InternalServerErrorException(
+        'Failed to create Stripe session',
+        err.message,
+      );
+    }
+  }
 
   async createStripeProductId(
     name: string,

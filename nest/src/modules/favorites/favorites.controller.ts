@@ -15,28 +15,28 @@ import { FavoritesService } from './favorites.service';
 export class FavoritesController {
   constructor(private readonly favoriteService: FavoritesService) {}
 
-  @Post(':listingId')
+  @Post(':eventId')
   async addToFavorites(
     @Req() req: Request,
-    @Param('listingId') listingId: Types.ObjectId,
+    @Param('eventId') eventId: Types.ObjectId,
   ): Promise<User> {
     try {
       return await this.favoriteService.addToFavorites(req, {
-        params: { listingId },
+        params: { eventId },
       });
     } catch (err) {
       throw new NotFoundException(err.message);
     }
   }
 
-  @Delete(':listingId')
+  @Delete(':eventId')
   async deleteFromFavorites(
     @Req() req: Request,
-    @Param('listingId') listingId: Types.ObjectId,
+    @Param('eventId') eventId: Types.ObjectId,
   ): Promise<User> {
     try {
       return await this.favoriteService.deleteFromFavorites(req, {
-        params: { listingId },
+        params: { eventId },
       });
     } catch (err) {
       throw new NotFoundException(err.message);
