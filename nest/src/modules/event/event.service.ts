@@ -9,8 +9,6 @@ import { AuthService } from '../auth/auth.service';
 export interface IEventsParams {
   userId?: string;
   guestCount?: number;
-  roomCount?: number;
-  bathroomCount?: number;
   startDate?: string;
   endDate?: string;
   locationValue?: string;
@@ -57,9 +55,7 @@ export class EventService {
         description,
         imageSrc,
         category,
-        roomCount: maxGuests,
         guestCount: minGuests,
-        bathroomCount: null,
         locationValue: location.value,
         price: parseInt(price, 10),
         userId: currentUser.result.user._id,
@@ -109,9 +105,7 @@ export class EventService {
     try {
       const {
         userId,
-        roomCount,
         guestCount,
-        bathroomCount,
         locationValue,
         startDate,
         endDate,
@@ -124,21 +118,9 @@ export class EventService {
         query.userId = userId;
       }
 
-      if (roomCount) {
-        query.roomCount = {
-          $gte: +roomCount,
-        };
-      }
-
       if (guestCount) {
         query.guestCount = {
           $gte: +guestCount,
-        };
-      }
-
-      if (bathroomCount) {
-        query.bathroomCount = {
-          $gte: +bathroomCount,
         };
       }
 
